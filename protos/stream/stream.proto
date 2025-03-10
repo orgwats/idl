@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package stream;
+
+option go_package = "github.com/orgwats/idl/protos/stream;stream";
+
+service StreamService {
+  rpc StartStream(StartStreamRequest) returns (StartStreamResponse);
+}
+
+message StartStreamRequest {
+  string stream_id = 1;
+}
+
+message StartStreamResponse {
+  string status = 1;
+}
