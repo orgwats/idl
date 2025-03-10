@@ -1,4 +1,4 @@
-module idl
+module github.com/orgwats/idl
 
 go 1.23.4
 
