@@ -2,16 +2,19 @@ syntax = "proto3";
 
 package stream;
 
-option go_package = "github.com/orgwats/idl/protos/stream;stream";
+option go_package = "github.com/orgwats/idl/gen/go/stream;stream";
 
+// Stream 서비스를 정의합니다.
 service StreamService {
-  rpc StartStream(StartStreamRequest) returns (StartStreamResponse);
+  // 클라이언트가 심볼(symbol)을 요청하면, 서버가 250ms 간격으로 해당 심볼 데이터를 스트리밍으로 전송합니다.
+  rpc NewStream(StreamRequest) returns (stream StreamResponse);
 }
 
-message StartStreamRequest {
-  string stream_id = 1;
+message StreamRequest {
+  string symbol = 1;
 }
 
-message StartStreamResponse {
-  string status = 1;
+message StreamResponse {
+  string symbol = 1;
+  int64 timestamp = 2;
 }

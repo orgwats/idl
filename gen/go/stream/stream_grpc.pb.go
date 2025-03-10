@@ -19,14 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StreamService_StartStream_FullMethodName = "/stream.StreamService/StartStream"
+	StreamService_NewStream_FullMethodName = "/stream.StreamService/NewStream"
 )
 
 // StreamServiceClient is the client API for StreamService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Stream 서비스를 정의합니다.
 type StreamServiceClient interface {
-	StartStream(ctx context.Context, in *StartStreamRequest, opts ...grpc.CallOption) (*StartStreamResponse, error)
+	// 클라이언트가 심볼(symbol)을 요청하면, 서버가 250ms 간격으로 해당 심볼 데이터를 스트리밍으로 전송합니다.
+	NewStream(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamResponse], error)
 }
 
 type streamServiceClient struct {
@@ -37,21 +40,33 @@ func NewStreamServiceClient(cc grpc.ClientConnInterface) StreamServiceClient {
 	return &streamServiceClient{cc}
 }
 
-func (c *streamServiceClient) StartStream(ctx context.Context, in *StartStreamRequest, opts ...grpc.CallOption) (*StartStreamResponse, error) {
+func (c *streamServiceClient) NewStream(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StartStreamResponse)
-	err := c.cc.Invoke(ctx, StreamService_StartStream_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &StreamService_ServiceDesc.Streams[0], StreamService_NewStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[StreamRequest, StreamResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StreamService_NewStreamClient = grpc.ServerStreamingClient[StreamResponse]
 
 // StreamServiceServer is the server API for StreamService service.
 // All implementations must embed UnimplementedStreamServiceServer
 // for forward compatibility.
+//
+// Stream 서비스를 정의합니다.
 type StreamServiceServer interface {
-	StartStream(context.Context, *StartStreamRequest) (*StartStreamResponse, error)
+	// 클라이언트가 심볼(symbol)을 요청하면, 서버가 250ms 간격으로 해당 심볼 데이터를 스트리밍으로 전송합니다.
+	NewStream(*StreamRequest, grpc.ServerStreamingServer[StreamResponse]) error
 	mustEmbedUnimplementedStreamServiceServer()
 }
 
@@ -62,8 +77,8 @@ type StreamServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedStreamServiceServer struct{}
 
-func (UnimplementedStreamServiceServer) StartStream(context.Context, *StartStreamRequest) (*StartStreamResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartStream not implemented")
+func (UnimplementedStreamServiceServer) NewStream(*StreamRequest, grpc.ServerStreamingServer[StreamResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method NewStream not implemented")
 }
 func (UnimplementedStreamServiceServer) mustEmbedUnimplementedStreamServiceServer() {}
 func (UnimplementedStreamServiceServer) testEmbeddedByValue()                       {}
@@ -86,23 +101,16 @@ func RegisterStreamServiceServer(s grpc.ServiceRegistrar, srv StreamServiceServe
 	s.RegisterService(&StreamService_ServiceDesc, srv)
 }
 
-func _StreamService_StartStream_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartStreamRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _StreamService_NewStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(StreamServiceServer).StartStream(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: StreamService_StartStream_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).StartStream(ctx, req.(*StartStreamRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(StreamServiceServer).NewStream(m, &grpc.GenericServerStream[StreamRequest, StreamResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StreamService_NewStreamServer = grpc.ServerStreamingServer[StreamResponse]
 
 // StreamService_ServiceDesc is the grpc.ServiceDesc for StreamService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -110,12 +118,13 @@ func _StreamService_StartStream_Handler(srv interface{}, ctx context.Context, de
 var StreamService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "stream.StreamService",
 	HandlerType: (*StreamServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "StartStream",
-			Handler:    _StreamService_StartStream_Handler,
+			StreamName:    "NewStream",
+			Handler:       _StreamService_NewStream_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "stream/stream.proto",
 }
