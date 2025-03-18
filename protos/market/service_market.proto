@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package market;
+
+import "rpc_stream_candle.proto";
+import "rpc_get_candles.proto";
+
+option go_package = "github.com/orgwats/idl/gen/go/market";
+
+service Market {
+  rpc StreamCandle(StreamCandleRequest) returns (stream StreamCandleResponse);
+  rpc GetCandles(GetCandlesRequest) returns (GetCandlesResponse);
+}

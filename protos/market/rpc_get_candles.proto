@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package market;
+
+import "candle.proto";
+
+option go_package = "github.com/orgwats/idl/gen/go/market";
+
+message GetCandlesRequest {
+  string symbol = 1;
+  int32 limit = 2;
+}
+
+message GetCandlesResponse {
+  repeated Candle candles = 1;
+}
