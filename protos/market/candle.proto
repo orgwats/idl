@@ -7,15 +7,15 @@ option go_package = "github.com/orgwats/idl/gen/go/market";
 message Candle {
   string symbol = 1;
   int64 open_time = 2;
-	double open = 3;
-	double high = 4;
-	double low = 5;
-	double close = 6;
-	double volume = 7;
+	string open = 3;
+	string high = 4;
+	string low = 5;
+	string close = 6;
+	string volume = 7;
 	int64 close_time = 8;
-	double quote_volume = 9;
+	string quote_volume = 9;
 	int64 count = 10;
-	double taker_buy_volume = 11;
-	double taker_buy_quote_volume = 12;
+	string taker_buy_volume = 11;
+	string taker_buy_quote_volume = 12;
 	bool closed = 13;
 }
