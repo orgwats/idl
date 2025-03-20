@@ -19,15 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Market_StreamCandle_FullMethodName = "/market.Market/StreamCandle"
-	Market_GetCandles_FullMethodName   = "/market.Market/GetCandles"
+	Market_NewCandleStream_FullMethodName = "/market.Market/NewCandleStream"
+	Market_GetCandles_FullMethodName      = "/market.Market/GetCandles"
 )
 
 // MarketClient is the client API for Market service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MarketClient interface {
-	StreamCandle(ctx context.Context, in *StreamCandleRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamCandleResponse], error)
+	NewCandleStream(ctx context.Context, in *NewCandleStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Candle], error)
 	GetCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
 }
 
@@ -39,13 +39,13 @@ func NewMarketClient(cc grpc.ClientConnInterface) MarketClient {
 	return &marketClient{cc}
 }
 
-func (c *marketClient) StreamCandle(ctx context.Context, in *StreamCandleRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamCandleResponse], error) {
+func (c *marketClient) NewCandleStream(ctx context.Context, in *NewCandleStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Candle], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Market_ServiceDesc.Streams[0], Market_StreamCandle_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Market_ServiceDesc.Streams[0], Market_NewCandleStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamCandleRequest, StreamCandleResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[NewCandleStreamRequest, Candle]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *marketClient) StreamCandle(ctx context.Context, in *StreamCandleRequest
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Market_StreamCandleClient = grpc.ServerStreamingClient[StreamCandleResponse]
+type Market_NewCandleStreamClient = grpc.ServerStreamingClient[Candle]
 
 func (c *marketClient) GetCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -72,7 +72,7 @@ func (c *marketClient) GetCandles(ctx context.Context, in *GetCandlesRequest, op
 // All implementations must embed UnimplementedMarketServer
 // for forward compatibility.
 type MarketServer interface {
-	StreamCandle(*StreamCandleRequest, grpc.ServerStreamingServer[StreamCandleResponse]) error
+	NewCandleStream(*NewCandleStreamRequest, grpc.ServerStreamingServer[Candle]) error
 	GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
 	mustEmbedUnimplementedMarketServer()
 }
@@ -84,8 +84,8 @@ type MarketServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMarketServer struct{}
 
-func (UnimplementedMarketServer) StreamCandle(*StreamCandleRequest, grpc.ServerStreamingServer[StreamCandleResponse]) error {
-	return status.Errorf(codes.Unimplemented, "method StreamCandle not implemented")
+func (UnimplementedMarketServer) NewCandleStream(*NewCandleStreamRequest, grpc.ServerStreamingServer[Candle]) error {
+	return status.Errorf(codes.Unimplemented, "method NewCandleStream not implemented")
 }
 func (UnimplementedMarketServer) GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCandles not implemented")
@@ -111,16 +111,16 @@ func RegisterMarketServer(s grpc.ServiceRegistrar, srv MarketServer) {
 	s.RegisterService(&Market_ServiceDesc, srv)
 }
 
-func _Market_StreamCandle_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamCandleRequest)
+func _Market_NewCandleStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(NewCandleStreamRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(MarketServer).StreamCandle(m, &grpc.GenericServerStream[StreamCandleRequest, StreamCandleResponse]{ServerStream: stream})
+	return srv.(MarketServer).NewCandleStream(m, &grpc.GenericServerStream[NewCandleStreamRequest, Candle]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Market_StreamCandleServer = grpc.ServerStreamingServer[StreamCandleResponse]
+type Market_NewCandleStreamServer = grpc.ServerStreamingServer[Candle]
 
 func _Market_GetCandles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCandlesRequest)
@@ -154,8 +154,8 @@ var Market_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StreamCandle",
-			Handler:       _Market_StreamCandle_Handler,
+			StreamName:    "NewCandleStream",
+			Handler:       _Market_NewCandleStream_Handler,
 			ServerStreams: true,
 		},
 	},
