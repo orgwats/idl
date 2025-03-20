@@ -2,14 +2,8 @@ syntax = "proto3";
 
 package market;
 
-import "candle.proto";
-
 option go_package = "github.com/orgwats/idl/gen/go/market";
 
-message StreamCandleRequest {
+message NewCandleStreamRequest {
   string symbol = 1;
-}
-
-message StreamCandleResponse {
-  Candle candle = 1;
 }
