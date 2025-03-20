@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package analyzer;
+
+option go_package = "github.com/orgwats/idl/gen/go/analyzer";
+
+message StopAnalyzerRequest {
+  string symbol = 1;
+}
+
+message StopAnalyzerResponse {
+  bool success = 1;
+  string message = 2;
+}

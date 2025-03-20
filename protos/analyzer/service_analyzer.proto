@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package analyzer;
+
+import "rpc_start.proto";
+import "rpc_stop.proto";
+
+option go_package = "github.com/orgwats/idl/gen/go/analyzer";
+
+service Analyzer {
+  rpc Start(StartAnalyzerRequest) returns (StartAnalyzerResponse);
+  rpc Stop(StopAnalyzerRequest) returns (StopAnalyzerResponse);
+}
