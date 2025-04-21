@@ -2,7 +2,11 @@
   "name": "@orgwats/idl",
   "version": "0.0.13",
   "description": "",
+  "scripts": {
+    "proto:generate": "./scripts/generate.sh"
+  },
   "files": [
+    "gen/ts",
     "protos"
   ],
   "repository": {
@@ -10,5 +14,8 @@
     "url": "https://github.com/orgwats/idl.git"
   },
   "author": "orgwats",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "ts-proto": "^2.7.0"
+  }
 }
