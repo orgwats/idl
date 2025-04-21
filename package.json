@@ -1,6 +1,6 @@
 {
   "name": "@orgwats/idl",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "scripts": {
     "proto:generate": "./scripts/generate.sh"
