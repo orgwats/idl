@@ -1,0 +1,14 @@
+{
+  "name": "@orgwats/idl",
+  "version": "0.0.8",
+  "description": "",
+  "files": [
+    "protos"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orgwats/idl.git"
+  },
+  "author": "orgwats",
+  "license": "MIT"
+}
